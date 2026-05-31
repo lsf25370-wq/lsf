@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智联电商</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#4f46e5;--primary-light:#818cf8;--bg:#f8fafc;--card:#fff;--text:#0f172a;--text-light:#64748b;--border:#e2e8f0;--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--sidebar-w:220px;--radius:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);background:#fff;border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;padding:24px 0}
+.sidebar .logo{padding:0 24px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sidebar .logo h2{font-size:18px;font-weight:700;color:var(--primary)}
+.sidebar .logo p{font-size:11px;color:var(--text-light);margin-top:4px}
+.sidebar .nav-item{padding:10px 24px;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text-light);transition:all 0.15s;border-left:3px solid transparent}
+.sidebar .nav-item:hover{background:#f1f5f9;color:var(--text)}
+.sidebar .nav-item.active{background:#eef2ff;color:var(--primary);border-left-color:var(--primary);font-weight:500}
+.sidebar .nav-item .nav-icon{width:20px;text-align:center;font-size:16px}
+.sidebar .nav-item .nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;padding:2px 6px;border-radius:10px}
+.main{margin-left:var(--sidebar-w);flex:1;padding:24px 32px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.header h2{font-size:22px;font-weight:700}
+.header .user-info{display:flex;align-items:center;gap:20px}
+.header .user-info .info-item{display:flex;flex-direction:column;align-items:flex-end}
+.header .user-info .info-item .label{font-size:11px;color:var(--text-light)}
+.header .user-info .info-item .value{font-size:14px;font-weight:600}
+.header .user-info .info-item .value.highlight{color:var(--primary)}
+.header .user-info .logout-btn{padding:6px 16px;border:none;border-radius:8px;cursor:pointer;background:var(--bg);color:var(--text-light);font-size:13px;transition:all 0.15s}
+.header .user-info .logout-btn:hover{background:#fee2e2;color:var(--danger)}
+.section{display:none}
+.section.active{display:block}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:0 1px 2px rgba(0,0,0,0.04);border:1px solid var(--border)}
+.stat-card .stat-value{font-size:28px;font-weight:700;margin-bottom:4px}
+.stat-card .stat-label{font-size:12px;color:var(--text-light)}
+.card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:0 1px 2px rgba(0,0,0,0.04);border:1px solid var(--border);margin-bottom:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-header h3{font-size:16px;font-weight:600}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.product-card{background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.04);border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+.product-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08);border-color:var(--primary-light)}
+.product-card .product-img{height:180px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);display:flex;align-items:center;justify-content:center;font-size:48px}
+.product-card .product-info{padding:16px}
+.product-card .product-name{font-size:14px;font-weight:500;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4}
+.product-card .product-price{color:var(--danger);font-weight:700;font-size:18px}
+.product-card .product-stock{font-size:11px;color:var(--text-light);margin-top:6px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:12px 16px;background:var(--bg);color:var(--text-light);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
+td{padding:14px 16px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+.badge{font-size:11px;padding:4px 10px;border-radius:6px;font-weight:500;display:inline-block}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-success{background:#dcfce7;color:#166534}
+.badge-danger{background:#fee2e2;color:#991b1b}
+.badge-info{background:#dbeafe;color:#1e40af}
+.badge-warning{background:#fce7f3;color:#9d174d}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500;transition:all 0.15s}
+.btn:hover{opacity:0.9}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-info{background:var(--info);color:#fff}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:28px;width:500px;max-width:90vw;max-height:90vh;overflow-y:auto}
+.modal h3{margin-bottom:20px;font-size:18px}
+.modal .form-group{margin-bottom:16px}
+.modal label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text-light)}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;transition:border-color 0.15s}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--primary)}
+.modal textarea{resize:vertical;min-height:80px}
+.modal-buttons{display:flex;gap:8px;justify-content:flex-end;margin-top:24px}
+.toast{position:fixed;top:20px;right:20px;padding:14px 24px;border-radius:10px;color:#fff;font-size:14px;z-index:300;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.toast.show{display:block}
+.toast-success{background:var(--success)}
+.toast-error{background:var(--danger)}
+.empty-state{text-align:center;padding:48px;color:var(--text-light)}
+.empty-state .empty-icon{font-size:48px;margin-bottom:12px;opacity:0.5}
+.search-bar{display:flex;gap:12px;margin-bottom:20px}
+.search-bar input{flex:1;padding:10px 16px;border:1px solid var(--border);border-radius:10px;font-size:14px;outline:none;transition:border-color 0.15s}
+.search-bar input:focus{border-color:var(--primary)}
+.search-bar select{padding:10px 16px;border:1px solid var(--border);border-radius:10px;font-size:14px;outline:none;background:#fff;min-width:140px}
+.search-bar .btn{padding:10px 20px}
+.ai-chat{display:flex;flex-direction:column;height:calc(100vh - 180px)}
+.ai-messages{flex:1;overflow-y:auto;padding:20px;background:var(--card);border-radius:var(--radius);margin-bottom:16px;border:1px solid var(--border)}
+.ai-message{margin-bottom:16px;display:flex;gap:12px}
+.ai-message.user{flex-direction:row-reverse}
+.ai-message .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--bg)}
+.ai-message .bubble{max-width:70%;padding:12px 18px;border-radius:16px;font-size:14px;line-height:1.6}
+.ai-message.bot .bubble{background:var(--bg);border-bottom-left-radius:4px}
+.ai-message.user .bubble{background:var(--primary);color:#fff;border-bottom-right-radius:4px}
+.ai-input{display:flex;gap:8px}
+.ai-input input{flex:1;padding:12px 18px;border:1px solid var(--border);border-radius:12px;font-size:14px;outline:none;transition:border-color 0.15s}
+.ai-input input:focus{border-color:var(--primary)}
+.ai-input button{padding:12px 24px;border:none;border-radius:12px;background:var(--primary);color:#fff;cursor:pointer;font-weight:500;transition:opacity 0.15s}
+.ai-input button:hover{opacity:0.9}
+.login-overlay{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);align-items:center;justify-content:center;z-index:1000}
+.login-overlay.hidden{display:none}
+.login-box{background:#fff;border-radius:20px;padding:48px;width:440px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid var(--border)}
+.login-box .login-header{text-align:center;margin-bottom:32px}
+.login-box .login-header h2{font-size:24px;font-weight:700;margin-bottom:8px}
+.login-box .login-header p{color:var(--text-light);font-size:14px}
+.login-box input{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:10px;font-size:14px;outline:none;margin-bottom:16px;transition:border-color 0.15s}
+.login-box input:focus{border-color:var(--primary)}
+.login-box .btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;cursor:pointer;background:var(--primary);color:#fff;font-weight:600;transition:opacity 0.15s}
+.login-box .btn:hover{opacity:0.9}
+.login-error{color:var(--danger);font-size:13px;margin-top:8px;display:none;text-align:center}
+.role-selector{display:flex;gap:12px;margin-bottom:24px}
+.role-btn{flex:1;padding:16px;border:1px solid var(--border);border-radius:12px;cursor:pointer;text-align:center;transition:all 0.15s;background:#fff}
+.role-btn:hover{border-color:var(--primary-light)}
+.role-btn.active{border-color:var(--primary);background:#eef2ff}
+.role-btn .role-icon{font-size:24px;margin-bottom:8px}
+.role-btn .role-name{font-size:14px;font-weight:600;color:var(--text)}
+.role-btn .role-desc{font-size:11px;color:var(--text-light);margin-top:4px}
+.coupon-card{background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;border:1px dashed #f59e0b}
+.coupon-card.used{background:linear-gradient(135deg,#f1f5f9,#e2e8f0);border-color:var(--border)}
+.coupon-card .coupon-left{display:flex;align-items:center;gap:12px}
+.coupon-card .coupon-icon{font-size:24px}
+.coupon-card .coupon-info .coupon-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.coupon-card .coupon-info .coupon-detail{font-size:12px;color:var(--text-light)}
+.coupon-card .coupon-value{font-size:20px;font-weight:700;color:#92400e}
+.coupon-card.used .coupon-value{color:var(--text-light)}
+.account-section{margin-bottom:24px}
+.account-section h4{font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text-light)}
+.recharge-row{display:flex;gap:12px;align-items:center;margin-top:12px}
+.recharge-row input{width:200px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none}
+.recharge-row input:focus{border-color:var(--primary)}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        <h2>智联电商</h2>
+        <p>智能购物平台</p>
+    </div>
+    <div class="nav-item active" data-section="products" onclick="switchSection('products')">
+        <span class="nav-icon">🛍️</span>商品浏览
+    </div>
+    <div class="nav-item" data-section="orders" onclick="switchSection('orders')">
+        <span class="nav-icon">📋</span>我的订单
+    </div>
+    <div class="nav-item" data-section="coupons" onclick="switchSection('coupons')">
+        <span class="nav-icon">🎫</span>优惠券
+        <span class="nav-badge" id="couponBadge">0</span>
+    </div>
+    <div class="nav-item" data-section="points" onclick="switchSection('points')">
+        <span class="nav-icon">⭐</span>积分商城
+    </div>
+    <div class="nav-item" data-section="payments" onclick="switchSection('payments')">
+        <span class="nav-icon">💳</span>支付记录
+    </div>
+    <div class="nav-item" data-section="returns" onclick="switchSection('returns')">
+        <span class="nav-icon">🔄</span>售后申请
+    </div>
+    <div class="nav-item" data-section="account" onclick="switchSection('account')">
+        <span class="nav-icon"></span>账户信息
+    </div>
+    <div class="nav-item" data-section="ai" onclick="switchSection('ai')">
+        <span class="nav-icon">🤖</span>AI客服
+    </div>
+</div>
+
+<div class="main">
+    <div class="header">
+        <h2 id="pageTitle">商品浏览</h2>
+        <div class="user-info">
+            <div class="info-item">
+                <span class="label">余额</span>
+                <span class="value highlight">¥<span id="headerBalance">0.00</span></span>
+            </div>
+            <div class="info-item">
+                <span class="label">积分</span>
+                <span class="value">⭐ <span id="headerPoints">0</span></span>
+            </div>
+            <div class="info-item">
+                <span class="label">优惠券</span>
+                <span class="value"><span id="headerCoupons">0</span>张</span>
+            </div>
+            <div class="info-item">
+                <span class="label">会员</span>
+                <span class="value"> <span id="headerUserName">-</span></span>
+            </div>
+            <button class="logout-btn" onclick="logout()">退出</button>
+        </div>
+    </div>
+
+    <div class="section active" id="sec-products">
+        <div class="search-bar">
+            <input type="text" id="productSearch" placeholder="搜索商品名称...">
+            <select id="productCategory">
+                <option value="">全部分类</option>
+                <option>电子产品</option><option>服装</option><option>食品</option>
+                <option>家电</option><option>美妆</option><option>户外</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadProducts()">搜索</button>
+        </div>
+        <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <div class="section" id="sec-orders">
+        <div class="card">
+            <div class="card-header"><h3>我的订单</h3></div>
+            <div id="orderList" class="empty-state">
+                <div class="empty-icon">📋</div>
+                <p>暂无订单</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="sec-coupons">
+        <div class="card">
+            <div class="card-header"><h3>可领取优惠券</h3></div>
+            <div id="availableCoupons"></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+            <div class="card-header"><h3>我的优惠券</h3></div>
+            <div id="myCoupons" class="empty-state">
+                <div class="empty-icon">🎫</div>
+                <p>暂无优惠券</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="sec-points">
+        <div class="product-grid" id="pointsGrid"></div>
+    </div>
+
+    <div class="section" id="sec-payments">
+        <div class="card">
+            <div class="card-header"><h3>支付记录</h3></div>
+            <div id="paymentList" class="empty-state">
+                <div class="empty-icon">💳</div>
+                <p>暂无支付记录</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="sec-returns">
+        <div class="card">
+            <div class="card-header">
+                <h3>售后申请</h3>
+                <button class="btn btn-primary btn-sm" onclick="showReturnModal()">+ 申请售后</button>
+            </div>
+            <div id="returnList" class="empty-state">
+                <div class="empty-icon">🔄</div>
+                <p>暂无售后申请</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="sec-account">
+        <div class="stats-row" id="accountStats"></div>
+        <div class="card">
+            <div class="account-section">
+                <h4>💰 余额充值</h4>
+                <div class="recharge-row">
+                    <input type="number" id="rechargeAmount" placeholder="充值金额">
+                    <button class="btn btn-primary" onclick="recharge()">充值</button>
+                </div>
+            </div>
+            <div class="account-section" style="border-top:1px solid var(--border);padding-top:20px;margin-top:20px">
+                <h4>🎫 我的优惠券 <span id="couponCount" style="font-weight:400;color:var(--text-light)"></span></h4>
+                <div id="accountCoupons"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="sec-ai">
+        <div class="ai-chat">
+            <div class="ai-messages" id="aiMessages">
+                <div class="ai-message bot">
+                    <div class="avatar">🤖</div>
+                    <div class="bubble">您好！我是智联电商智能客服，请问有什么可以帮助您的？</div>
+                </div>
+            </div>
+            <div class="ai-input">
+                <input type="text" id="aiInput" placeholder="输入您的问题..." onkeyup="if(event.key==='Enter')sendAiMessage()">
+                <button onclick="sendAiMessage()">发送</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContent"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <div class="login-header">
+            <h2>欢迎登录</h2>
+            <p>选择角色并登录</p>
+        </div>
+        <div class="role-selector">
+            <div class="role-btn active" id="roleUser" onclick="selectRole('USER')">
+                <div class="role-icon">🛒</div>
+                <div class="role-name">普通用户</div>
+                <div class="role-desc">浏览商品、下单</div>
+            </div>
+            <div class="role-btn" id="roleAdmin" onclick="selectRole('ADMIN')">
+                <div class="role-icon">⚙️</div>
+                <div class="role-name">管理员</div>
+                <div class="role-desc">后台管理</div>
+            </div>
+        </div>
+        <input type="text" id="loginUsername" placeholder="用户名" value="zhangsan">
+        <input type="password" id="loginPassword" placeholder="密码" value="123456" onkeyup="if(event.key==='Enter')doLogin()">
+        <button class="btn" onclick="doLogin()">登 录</button>
+        <div style="margin-top:20px;font-size:13px;color:var(--text-light);text-align:center">
+            还没有账号？<a href="#" onclick="showRegisterModal();return false" style="color:var(--primary);font-weight:500">立即注册</a>
+        </div>
+        <div class="login-error" id="loginError">登录失败</div>
+    </div>
+</div>
+
+<script>
+const API='/api/v1';
+let USER='';
+let USER_DATA={};
+let currentRole='USER';
+let USER_COUPONS=[];
+
+function selectRole(role){
+    currentRole=role;
+    document.getElementById('roleUser').classList.toggle('active',role==='USER');
+    document.getElementById('roleAdmin').classList.toggle('active',role==='ADMIN');
+    if(role==='USER'){
+        document.getElementById('loginUsername').value='zhangsan';
+        document.getElementById('loginPassword').value='123456';
+    }else{
+        document.getElementById('loginUsername').value='admin';
+        document.getElementById('loginPassword').value='admin123';
+    }
+}
+
+function toast(msg,type='success'){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.className='toast toast-'+type+' show';
+    setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function showModal(html){
+    document.getElementById('modalContent').innerHTML=html;
+    document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show')}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal()});
+
+function statusBadge(s){
+    const map={
+        '待支付':'badge-pending','已支付':'badge-info','运输中':'badge-info',
+        '已签收':'badge-success','已取消':'badge-danger','已退款':'badge-warning',
+        'SUCCESS':'badge-success','PENDING':'badge-pending','FAILED':'badge-danger',
+        'REFUNDED':'badge-warning','SUBMITTED':'badge-pending','APPROVED':'badge-info',
+        'REJECTED':'badge-danger','COMPLETED':'badge-success',
+        'ON_SALE':'badge-success','OFF_SALE':'badge-danger',
+        '可用':'badge-success','已使用':'badge-warning','已过期':'badge-danger'
+    };
+    return `<span class="badge ${map[s]||'badge-pending'}">${s}</span>`;
+}
+
+async function api(path,options={}){
+    try{const res=await fetch(API+path,options);if(!res.ok)return{code:500,message:'HTTP '+res.status,data:null};return await res.json();}
+    catch(e){return{code:500,message:'网络错误',data:null};}
+}
+
+function doLogin(){
+    const username=document.getElementById('loginUsername').value.trim();
+    const password=document.getElementById('loginPassword').value;
+    if(!username||!password){toast('请输入账号和密码','error');return;}
+    fetch(API+'/admin/login',{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded'},
+        body:'username='+encodeURIComponent(username)+'&password='+encodeURIComponent(password)
+    }).then(r=>r.json()).then(res=>{
+        if(res.code===200){
+            if(res.data.role==='ADMIN'){
+                localStorage.setItem('user_session', JSON.stringify(res.data));
+                window.location.href='admin.html';
+            }else{
+                USER=res.data.userId;
+                USER_DATA=res.data;
+                localStorage.setItem('user_session', JSON.stringify(res.data));
+                document.getElementById('headerUserName').textContent=res.data.username;
+                document.getElementById('loginOverlay').classList.add('hidden');
+                updateHeaderInfo();
+                loadProducts();
+                loadAccount();
+                loadCoupons();
+                toast('欢迎回来，'+res.data.username+'！');
+            }
+        }else{
+            document.getElementById('loginError').textContent=res.message||'登录失败';
+            document.getElementById('loginError').style.display='block';
+            setTimeout(()=>{document.getElementById('loginError').style.display='none';},3000);
+        }
+    }).catch(()=>toast('网络异常','error'));
+}
+
+function restoreSession(){
+    const saved=localStorage.getItem('user_session');
+    if(!saved)return false;
+    try{
+        const data=JSON.parse(saved);
+        if(data.role==='ADMIN')return false;
+        USER=data.userId;
+        USER_DATA=data;
+        return true;
+    }catch(e){return false;}
+}
+
+function showRegisterModal(){
+    showModal(`<h3>注册账号</h3>
+        <div class="form-group"><label>用户名</label><input id="regUsername"></div>
+        <div class="form-group"><label>密码</label><input type="password" id="regPassword"></div>
+        <div class="form-group"><label>确认密码</label><input type="password" id="regPassword2"></div>
+        <div class="form-group"><label>邮箱</label><input type="email" id="regEmail"></div>
+        <div class="form-group"><label>手机号</label><input id="regPhone"></div>
+        <div class="modal-buttons"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doRegister()">注册</button></div>`);
+}
+function doRegister(){
+    const u=document.getElementById('regUsername').value,p=document.getElementById('regPassword').value,p2=document.getElementById('regPassword2').value,e=document.getElementById('regEmail').value,ph=document.getElementById('regPhone').value;
+    if(!u||!p){toast('用户名和密码必填','error');return;}
+    if(p!==p2){toast('两次密码不一致','error');return;}
+    fetch(API+'/admin/users?username='+encodeURIComponent(u)+'&password='+encodeURIComponent(p)+'&email='+encodeURIComponent(e||'')+'&phone='+encodeURIComponent(ph||''),{method:'POST'}).then(r=>r.json()).then(res=>{
+        if(res.code===200){toast('注册成功，请登录');closeModal();}
+        else toast(res.message||'注册失败','error');
+    });
+}
+
+function logout(){
+    localStorage.removeItem('user_session');
+    window.location.href='admin.html';
+}
+
+function switchSection(sec){
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.querySelector(`.nav-item[data-section="${sec}"]`).classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById('sec-'+sec).classList.add('active');
+    const titles={products:'商品浏览',orders:'我的订单',coupons:'优惠券',points:'积分商城',payments:'支付记录',returns:'售后申请',account:'账户信息',ai:'AI客服'};
+    document.getElementById('pageTitle').textContent=titles[sec]||'';
+    if(sec==='products')loadProducts();
+    if(sec==='orders')loadOrders();
+    if(sec==='coupons')loadCoupons();
+    if(sec==='points')loadPointsMall();
+    if(sec==='payments')loadPayments();
+    if(sec==='returns')loadReturns();
+    if(sec==='account')loadAccount();
+}
+
+function updateHeaderInfo(){
+    document.getElementById('headerBalance').textContent=USER_DATA.balance?USER_DATA.balance.toFixed(2):'0.00';
+    document.getElementById('headerPoints').textContent=USER_DATA.points||0;
+    document.getElementById('headerCoupons').textContent=USER_COUPONS.filter(c=>c.status==='可用').length;
+}
+
+async function loadProducts(){
+    const search=document.getElementById('productSearch').value;
+    const cat=document.getElementById('productCategory').value;
+    let url='/products';
+    const params=[];
+    if(search)params.push('keyword='+encodeURIComponent(search));
+    if(cat)params.push('category='+cat);
+    if(params.length>0)url+='?'+params.join('&');
+    const res=await api(url);
+    const grid=document.getElementById('productGrid');
+    if(res.code!==200||!res.data||res.data.length===0){
+        grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🛍️</div><p>暂无商品</p></div>';return;
+    }
+    grid.innerHTML=res.data.filter(p=>p.status==='ON_SALE').map(p=>`
+        <div class="product-card" onclick="showProductDetail('${p.productId}')">
+            <div class="product-img">📦</div>
+            <div class="product-info">
+                <div class="product-name">${p.name}</div>
+                <div class="product-price">¥${p.price?parseFloat(p.price).toFixed(2):'0.00'}</div>
+                <div class="product-stock">库存: ${p.stock||0}</div>
+            </div>
+        </div>`).join('');
+}
+
+function showProductDetail(id){
+    showModal(`<h3>商品详情</h3>
+        <div style="text-align:center;padding:40px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);border-radius:12px;margin-bottom:16px;font-size:64px">📦</div>
+        <div id="productDetailInfo"></div>
+        <div class="modal-buttons"><button class="btn btn-outline" onclick="closeModal()">关闭</button><button class="btn btn-primary" id="buyBtn" onclick="buyProduct('${id}')">立即购买</button></div>`);
+    api('/products/'+id).then(res=>{
+        if(res.code===200&&res.data){
+            const p=res.data;
+            document.getElementById('productDetailInfo').innerHTML=`
+                <h3>${p.name}</h3>
+                <p style="color:var(--text-light);margin:8px 0">${p.description||'暂无描述'}</p>
+                <p style="color:var(--danger);font-size:24px;font-weight:700;margin:12px 0">¥${p.price?parseFloat(p.price).toFixed(2):'0.00'}</p>
+                <p style="color:var(--text-light)">库存: ${p.stock||0} | 分类: ${p.category}</p>`;
+            document.getElementById('buyBtn').disabled=p.stock<=0;
+            document.getElementById('buyBtn').textContent=p.stock<=0?'已售罄':'立即购买';
+        }
+    });
+}
+
+function buyProduct(id){
+    showModal(`<h3>确认购买</h3>
+        <div class="form-group"><label>收货地址</label><input id="buyAddress" placeholder="请输入收货地址"></div>
+        <div class="form-group"><label>购买数量</label><input type="number" id="buyQty" value="1" min="1"></div>
+        <div class="form-group"><label>支付方式</label><select id="buyMethod"><option value="BALANCE">余额支付</option><option value="POINTS">积分抵扣</option><option value="MIXED">混合支付</option></select></div>
+        <div class="modal-buttons"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="confirmBuy('${id}')">确认下单</button></div>`);
+}
+async function confirmBuy(productId){
+    const address=document.getElementById('buyAddress').value;
+    const qty=document.getElementById('buyQty').value||1;
+    const method=document.getElementById('buyMethod').value;
+    if(!address){toast('请输入收货地址','error');return;}
+    const res=await api(`/orders/create?productId=${productId}&quantity=${qty}&address=${encodeURIComponent(address)}&payMethod=${method}`,{method:'POST'});
+    if(res.code===200){toast('下单成功');closeModal();loadOrders();}
+    else toast(res.message||'下单失败','error');
+}
+
+async function loadOrders(){
+    const res=await api(`/orders/user/${USER}`);
+    const el=document.getElementById('orderList');
+    if(res.code!==200||!res.data||res.data.length===0){
+        el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>暂无订单</p></div>';return;
+    }
+    el.innerHTML=`<table><thead><tr><th>订单号</th><th>商品</th><th>金额</th><th>状态</th><th>时间</th><th>物流</th><th>操作</th></tr></thead><tbody>${
+        res.data.map(o=>`<tr>
+            <td><strong>${o.orderId}</strong></td><td>${o.productName||'-'}</td>
+            <td>¥${o.amount?o.amount.toFixed(2):'0.00'}</td><td>${statusBadge(o.status)}</td><td>${o.createTime||'-'}</td>
+            <td>${o.trackingNo||'-'}</td>
+            <td>${o.status==='待支付'?`<button class="btn-sm btn-success" onclick="payOrder('${o.orderId}')">去支付</button>`:o.status==='运输中'?`<button class="btn-sm btn-info" onclick="deliverOrder('${o.orderId}')">确认签收</button>`:o.status==='已签收'?`<button class="btn-sm btn-warning" onclick="showReturnModal('${o.orderId}')">申请售后</button>`:'-'}</td>
+        </tr>`).join('')
+    }</tbody></table>`;
+}
+
+async function payOrder(orderId){
+    showModal(`<h3>支付订单 - ${orderId}</h3>
+        <div class="form-group"><label>支付方式</label><select id="payMethod"><option value="BALANCE">余额支付</option><option value="POINTS">积分抵扣</option><option value="MIXED">混合支付</option></select></div>
+        <div class="modal-buttons"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="confirmPay('${orderId}')">确认支付</button></div>`);
+}
+async function confirmPay(orderId){
+    const method=document.getElementById('payMethod').value;
+    const res=await api(`/payments/create?orderId=${orderId}&method=${method}`,{method:'POST'});
+    if(res.code===200){toast('支付成功');closeModal();loadOrders();loadAccount();}
+    else toast(res.message||'支付失败','error');
+}
+
+async function deliverOrder(orderId){
+    if(!confirm('确认已收到商品？'))return;
+    const res=await api(`/orders/${orderId}/deliver`,{method:'PUT'});
+    if(res.code===200){toast('已确认签收');loadOrders();}
+    else toast(res.message||'操作失败','error');
+}
+
+async function loadCoupons(){
+    const res=await api('/coupons/all');
+    const el1=document.getElementById('availableCoupons');
+    if(res.code!==200||!res.data||res.data.length===0){
+        el1.innerHTML='<div class="empty-state"><p>暂无可领取优惠券</p></div>';
+    }else{
+        el1.innerHTML=res.data.map(c=>`
+            <div class="coupon-card">
+                <div class="coupon-left">
+                    <div class="coupon-icon">🎫</div>
+                    <div class="coupon-info">
+                        <div class="coupon-name">${c.name}</div>
+                        <div class="coupon-detail">满${c.minAmount||0}可用 · 有效期至${c.expireDate||'-'}</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div class="coupon-value">¥${c.discount||0}</div>
+                    <button class="btn btn-primary btn-sm" onclick="claimCoupon('${c.couponId}')">领取</button>
+                </div>
+            </div>`).join('');
+    }
+    loadMyCoupons();
+}
+
+async function loadMyCoupons(){
+    const res=await api(`/coupons/user/${USER}`);
+    const el=document.getElementById('myCoupons');
+    const el2=document.getElementById('accountCoupons');
+    if(res.code!==200||!res.data||res.data.length===0){
+        USER_COUPONS=[];
+        el.innerHTML='<div class="empty-state"><div class="empty-icon"></div><p>暂无优惠券</p></div>';
+        if(el2)el2.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-light)">暂无优惠券</div>';
+    }else{
+        USER_COUPONS=res.data;
+        el.innerHTML=res.data.map(c=>`
+            <div class="coupon-card ${c.status!=='可用'?'used':''}">
+                <div class="coupon-left">
+                    <div class="coupon-icon"></div>
+                    <div class="coupon-info">
+                        <div class="coupon-name">${c.name}</div>
+                        <div class="coupon-detail">满${c.minAmount||0}可用 · ${c.status}${c.status==='已使用'?' · '+c.useTime:''}</div>
+                    </div>
+                </div>
+                <div class="coupon-value">¥${c.discount||0}</div>
+            </div>`).join('');
+        if(el2){
+            el2.innerHTML=res.data.map(c=>`
+                <div class="coupon-card ${c.status!=='可用'?'used':''}" style="margin-bottom:8px">
+                    <div class="coupon-left">
+                        <div class="coupon-icon">🎫</div>
+                        <div class="coupon-info">
+                            <div class="coupon-name">${c.name}</div>
+                            <div class="coupon-detail">${c.status}</div>
+                        </div>
+                    </div>
+                    <div class="coupon-value">¥${c.discount||0}</div>
+                </div>`).join('');
+        }
+    }
+    document.getElementById('headerCoupons').textContent=USER_COUPONS.filter(c=>c.status==='可用').length;
+    document.getElementById('couponBadge').textContent=USER_COUPONS.filter(c=>c.status==='可用').length;
+    const cc=document.getElementById('couponCount');
+    if(cc)cc.textContent=`(${USER_COUPONS.filter(c=>c.status==='可用').length}张可用)`;
+}
+
+async function claimCoupon(couponId){
+    const res=await api(`/coupons/${couponId}/claim?userId=${USER}`,{method:'POST'});
+    if(res.code===200){toast('领取成功');loadMyCoupons();}
+    else toast(res.message||'领取失败','error');
+}
+
+async function loadPointsMall(){
+    const res=await api('/points-products');
+    const grid=document.getElementById('pointsGrid');
+    if(res.code!==200||!res.data||res.data.length===0){
+        grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⭐</div><p>暂无积分商品</p></div>';return;
+    }
+    grid.innerHTML=res.data.filter(p=>p.status==='ON_SALE').map(p=>`
+        <div class="product-card" onclick="exchangeProduct('${p.productId}',${p.pointsCost||0},'${(p.productName||'').replace(/'/g,"\\'")}')">
+            <div class="product-img" style="background:linear-gradient(135deg,#fef3c7,#fde68a)">⭐</div>
+            <div class="product-info">
+                <div class="product-name">${p.productName}</div>
+                <div style="color:var(--warning);font-weight:700;font-size:16px">⭐ ${p.pointsCost||0} 积分</div>
+                <div style="color:var(--text-light);font-size:11px;margin-top:4px">库存: ${p.stock||0}</div>
+            </div>
+        </div>`).join('');
+}
+
+function exchangeProduct(id,points,name){
+    if(USER_DATA.points<points){toast('积分不足，当前积分: '+USER_DATA.points,'error');return;}
+    showModal(`<h3>积分兑换</h3>
+        <p>商品: <strong>${name}</strong></p>
+        <p>所需积分: <strong style="color:var(--warning)">⭐ ${points}</strong></p>
+        <p>当前积分: <strong>${USER_DATA.points||0}</strong></p>
+        <div class="form-group"><label>收货地址</label><input id="exAddress" placeholder="请输入收货地址"></div>
+        <div class="modal-buttons"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="confirmExchange('${id}','${name}')">确认兑换</button></div>`);
+}
+async function confirmExchange(productId,productName){
+    const address=document.getElementById('exAddress').value;
+    if(!address){toast('请输入收货地址','error');return;}
+    const res=await api(`/points-exchange?productId=${productId}&userId=${USER}&address=${encodeURIComponent(address)}`,{method:'POST'});
+    if(res.code===200){toast('兑换成功');closeModal();loadPointsMall();loadAccount();}
+    else toast(res.message||'兑换失败','error');
+}
+
+async function loadPayments(){
+    const res=await api(`/payments/user/${USER}`);
+    const el=document.getElementById('paymentList');
+    if(res.code!==200||!res.data||res.data.length===0){
+        el.innerHTML='<div class="empty-state"><div class="empty-icon">💳</div><p>暂无支付记录</p></div>';return;
+    }
+    el.innerHTML=`<table><thead><tr><th>支付单号</th><th>关联订单</th><th>金额</th><th>方式</th><th>状态</th><th>时间</th></tr></thead><tbody>${
+        res.data.map(p=>`<tr>
+            <td>${p.paymentId}</td><td>${p.orderId}</td>
+            <td><strong>¥${p.amount?parseFloat(p.amount).toFixed(2):'0.00'}</strong></td><td>${p.method}</td>
+            <td>${statusBadge(p.status)}</td><td>${p.createTime||'-'}</td>
+        </tr>`).join('')
+    }</tbody></table>`;
+}
+
+function showReturnModal(orderId){
+    showModal(`<h3>申请售后</h3>
+        <div class="form-group"><label>关联订单</label><input id="retOrderId" value="${orderId||''}" ${orderId?'readonly':''}></div>
+        <div class="form-group"><label>退款原因</label><textarea id="retReason" placeholder="请说明退款原因"></textarea></div>
+        <div class="form-group"><label>退款金额</label><input type="number" id="retAmount" step="0.01"></div>
+        <div class="modal-buttons"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="submitReturn()">提交申请</button></div>`);
+}
+async function submitReturn(){
+    const orderId=document.getElementById('retOrderId').value;
+    const reason=document.getElementById('retReason').value;
+    const amount=document.getElementById('retAmount').value;
+    if(!orderId||!reason){toast('请填写完整信息','error');return;}
+    const res=await api(`/returns?orderId=${orderId}&reason=${encodeURIComponent(reason)}&refundAmount=${amount||0}&userId=${USER}`,{method:'POST'});
+    if(res.code===200){toast('申请已提交');closeModal();loadReturns();}
+    else toast(res.message||'提交失败','error');
+}
+
+async function loadReturns(){
+    const res=await api(`/returns/user/${USER}`);
+    const el=document.getElementById('returnList');
+    if(res.code!==200||!res.data||res.data.length===0){
+        el.innerHTML='<div class="empty-state"><div class="empty-icon"></div><p>暂无售后申请</p></div>';return;
+    }
+    el.innerHTML=`<table><thead><tr><th>申请单号</th><th>订单号</th><th>原因</th><th>退款金额</th><th>状态</th><th>时间</th></tr></thead><tbody>${
+        res.data.map(r=>`<tr>
+            <td>${r.requestId}</td><td>${r.orderId}</td><td>${r.reason}</td>
+            <td>¥${(r.refundAmount||0).toFixed(2)}</td><td>${statusBadge(r.status)}</td><td>${r.createTime||'-'}</td>
+        </tr>`).join('')
+    }</tbody></table>`;
+}
+
+async function loadAccount(){
+    if(!USER)return;
+    const res=await api(`/users/${USER}`);
+    if(res.code===200&&res.data){
+        USER_DATA=res.data;
+        updateHeaderInfo();
+        document.getElementById('accountStats').innerHTML=`
+            <div class="stat-card"><div class="stat-value" style="color:var(--success)">¥${res.data.balance?parseFloat(res.data.balance).toFixed(2):'0.00'}</div><div class="stat-label">余额</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--warning)">⭐ ${res.data.points||0}</div><div class="stat-label">积分</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--primary)">${res.data.memberLevel||'普通'}</div><div class="stat-label">会员等级</div></div>
+            <div class="stat-card"><div class="stat-value" style="color:var(--info)">${USER_COUPONS.filter(c=>c.status==='可用').length}</div><div class="stat-label">可用优惠券</div></div>`;
+    }
+}
+
+async function recharge(){
+    const amount=document.getElementById('rechargeAmount').value;
+    if(!amount||amount<=0){toast('请输入有效金额','error');return;}
+    const res=await api(`/users/${USER}/recharge?amount=${amount}`,{method:'PUT'});
+    if(res.code===200){toast('充值成功');loadAccount();}
+    else toast(res.message||'充值失败','error');
+}
+
+async function sendAiMessage(){
+    const input=document.getElementById('aiInput');
+    const msg=input.value.trim();
+    if(!msg)return;
+    const messages=document.getElementById('aiMessages');
+    messages.innerHTML+=`<div class="ai-message user"><div class="avatar">👤</div><div class="bubble">${msg}</div></div>`;
+    input.value='';
+    messages.innerHTML+=`<div class="ai-message bot" id="typing"><div class="avatar">🤖</div><div class="bubble">正在思考...</div></div>`;
+    messages.scrollTop=messages.scrollHeight;
+    
+    try{
+        const res=await fetch(API+'/ai/chat',{
+            method:'POST',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},
+            body:'message='+encodeURIComponent(msg)+'&userId='+USER
+        }).then(r=>r.json());
+        const typing=document.getElementById('typing');
+        if(typing)typing.remove();
+        if(res.code===200){
+            messages.innerHTML+=`<div class="ai-message bot"><div class="avatar">🤖</div><div class="bubble">${res.data.reply||'抱歉，我暂时无法回答您的问题'}</div></div>`;
+        }else{
+            messages.innerHTML+=`<div class="ai-message bot"><div class="avatar">🤖</div><div class="bubble">服务暂时不可用，请稍后再试</div></div>`;
+        }
+    }catch(e){
+        const typing=document.getElementById('typing');
+        if(typing)typing.remove();
+        messages.innerHTML+=`<div class="ai-message bot"><div class="avatar"></div><div class="bubble">网络异常，请检查连接</div></div>`;
+    }
+    messages.scrollTop=messages.scrollHeight;
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+    if(restoreSession()){
+        document.getElementById('loginOverlay').classList.add('hidden');
+        document.getElementById('headerUserName').textContent=USER_DATA.username;
+        updateHeaderInfo();
+        loadProducts();
+        loadAccount();
+        loadCoupons();
+    }else{
+        document.getElementById('loginOverlay').classList.add('show');
+    }
+});
+</script>
+</body>
+</html>

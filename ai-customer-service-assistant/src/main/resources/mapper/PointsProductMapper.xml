@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csa.assistant.mapper.PointsProductMapper">
+
+    <resultMap id="PointsProductResultMap" type="com.csa.assistant.entity.PointsProductEntity">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="category" property="category"/>
+        <result column="points_cost" property="pointsCost"/>
+        <result column="stock" property="stock"/>
+        <result column="description" property="description"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="PointsExchangeResultMap" type="com.csa.assistant.entity.PointsExchangeEntity">
+        <id column="id" property="id"/>
+        <result column="exchange_id" property="exchangeId"/>
+        <result column="user_id" property="userId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="points_cost" property="pointsCost"/>
+        <result column="status" property="status"/>
+        <result column="exchange_time" property="exchangeTime"/>
+        <result column="ship_time" property="shipTime"/>
+        <result column="tracking_no" property="trackingNo"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="PointsProductResultMap">
+        SELECT * FROM points_products WHERE status = 'ON_SALE' ORDER BY points_cost ASC
+    </select>
+
+    <select id="selectByCategory" resultMap="PointsProductResultMap">
+        SELECT * FROM points_products WHERE status = 'ON_SALE'
+        <if test="category != null and category != ''">
+            AND category = #{category}
+        </if>
+        ORDER BY points_cost ASC
+    </select>
+
+    <select id="selectByProductId" resultMap="PointsProductResultMap">
+        SELECT * FROM points_products WHERE product_id = #{productId}
+    </select>
+
+    <update id="decreaseStock">
+        UPDATE points_products SET stock = stock - 1 WHERE product_id = #{productId} AND stock > 0
+    </update>
+
+    <select id="selectByUserId" resultMap="PointsExchangeResultMap">
+        SELECT * FROM points_exchanges WHERE user_id = #{userId} ORDER BY exchange_time DESC
+    </select>
+
+    <select id="selectAllExchanges" resultMap="PointsExchangeResultMap">
+        SELECT * FROM points_exchanges ORDER BY exchange_time DESC
+    </select>
+
+    <insert id="insertExchange">
+        INSERT INTO points_exchanges (exchange_id, user_id, product_id, product_name, points_cost, status, exchange_time)
+        VALUES (#{exchangeId}, #{userId}, #{productId}, #{productName}, #{pointsCost}, #{status}, #{exchangeTime})
+    </insert>
+
+    <update id="updateExchangeStatus">
+        UPDATE points_exchanges
+        SET status = #{status}
+        <if test="trackingNo != null">
+            , tracking_no = #{trackingNo}
+        </if>
+        <if test="status == '已发货'">
+            , ship_time = NOW()
+        </if>
+        WHERE exchange_id = #{exchangeId}
+    </update>
+
+    <insert id="insertProduct">
+        INSERT INTO points_products (product_id, product_name, category, points_cost, stock, description, image_url, status, create_time)
+        VALUES (#{productId}, #{productName}, #{category}, #{pointsCost}, #{stock}, #{description}, #{imageUrl}, #{status}, #{createTime})
+    </insert>
+
+    <update id="updateProduct">
+        UPDATE points_products
+        <set>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="pointsCost != null">points_cost = #{pointsCost},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE product_id = #{productId}
+    </update>
+
+    <delete id="deleteProduct">
+        DELETE FROM points_products WHERE product_id = #{productId}
+    </delete>
+
+</mapper>

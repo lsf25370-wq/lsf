@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csa.assistant.mapper.ReturnRequestMapper">
+
+    <resultMap id="ReturnRequestResultMap" type="com.csa.assistant.entity.ReturnRequestEntity">
+        <id column="id" property="id"/>
+        <result column="request_id" property="requestId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="reason" property="reason"/>
+        <result column="description" property="description"/>
+        <result column="status" property="status"/>
+        <result column="refund_amount" property="refundAmount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="processed_time" property="processedTime"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <select id="selectByRequestId" resultMap="ReturnRequestResultMap">
+        SELECT * FROM return_requests WHERE request_id = #{requestId}
+    </select>
+
+    <select id="selectByOrderId" resultMap="ReturnRequestResultMap">
+        SELECT * FROM return_requests WHERE order_id = #{orderId}
+    </select>
+
+    <select id="selectByUserId" resultMap="ReturnRequestResultMap">
+        SELECT * FROM return_requests WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectAll" resultMap="ReturnRequestResultMap">
+        SELECT * FROM return_requests ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert">
+        INSERT INTO return_requests (request_id, order_id, reason, description, status, refund_amount, create_time, processed_time, user_id)
+        VALUES (#{requestId}, #{orderId}, #{reason}, #{description}, #{status}, #{refundAmount}, #{createTime}, #{processedTime}, #{userId})
+    </insert>
+
+    <update id="update">
+        UPDATE return_requests 
+        SET reason = #{reason},
+            description = #{description},
+            status = #{status},
+            refund_amount = #{refundAmount},
+            create_time = #{createTime},
+            processed_time = #{processedTime}
+        WHERE request_id = #{requestId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE return_requests SET status = #{status}, processed_time = NOW() WHERE request_id = #{requestId}
+    </update>
+
+</mapper>

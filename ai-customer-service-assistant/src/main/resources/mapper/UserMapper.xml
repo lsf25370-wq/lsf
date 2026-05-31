@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csa.assistant.mapper.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.csa.assistant.entity.UserEntity">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="role" property="role"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="balance" property="balance"/>
+        <result column="points" property="points"/>
+        <result column="member_level" property="memberLevel"/>
+        <result column="member_expire_date" property="memberExpireDate"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="UserResultMap">
+        SELECT * FROM users WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectByUsername" resultMap="UserResultMap">
+        SELECT * FROM users WHERE username = #{username}
+    </select>
+
+    <select id="selectAll" resultMap="UserResultMap">
+        SELECT * FROM users
+    </select>
+
+    <insert id="insert">
+        INSERT INTO users (user_id, username, password, role, email, phone, balance, points, member_level, member_expire_date, create_time)
+        VALUES (#{userId}, #{username}, #{password}, #{role}, #{email}, #{phone}, #{balance}, #{points}, #{memberLevel}, #{memberExpireDate}, #{createTime})
+    </insert>
+
+    <update id="updateBalance">
+        UPDATE users SET balance = #{balance} WHERE user_id = #{userId}
+    </update>
+
+    <update id="updatePoints">
+        UPDATE users SET points = #{points} WHERE user_id = #{userId}
+    </update>
+
+    <update id="updatePassword">
+        UPDATE users SET password = #{password} WHERE user_id = #{userId}
+    </update>
+
+    <update id="increaseBalance">
+        UPDATE users SET balance = balance + #{amount} WHERE user_id = #{userId}
+    </update>
+
+    <update id="decreaseBalance">
+        UPDATE users SET balance = balance - #{amount} WHERE user_id = #{userId} AND balance >= #{amount}
+    </update>
+
+    <update id="increasePoints">
+        UPDATE users SET points = points + #{points} WHERE user_id = #{userId}
+    </update>
+
+    <update id="decreasePoints">
+        UPDATE users SET points = points - #{points} WHERE user_id = #{userId} AND points >= #{points}
+    </update>
+
+    <update id="updateUserInfo">
+        UPDATE users SET email = #{email}, phone = #{phone} WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteUser">
+        DELETE FROM users WHERE user_id = #{userId}
+    </delete>
+
+</mapper>

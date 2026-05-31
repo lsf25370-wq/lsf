@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/SSA-01HelloWorld/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SSA-02OllamaChat/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SSA-03ChatClent/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SSA-04StreamingOutput/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SSA-05Prompt/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SSA-06PromptTemplate/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SSA-07StructuredOutput/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/SSA-08Persistent/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ai-customer-service-assistant/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>

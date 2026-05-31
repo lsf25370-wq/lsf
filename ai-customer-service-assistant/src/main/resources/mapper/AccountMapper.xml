@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csa.assistant.mapper.AccountMapper">
+
+    <resultMap id="AccountResultMap" type="com.csa.assistant.entity.AccountEntity">
+        <id column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="balance" property="balance"/>
+        <result column="points" property="points"/>
+        <result column="member_level" property="memberLevel"/>
+        <result column="member_expire_date" property="memberExpireDate"/>
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="AccountResultMap">
+        SELECT * FROM accounts WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO accounts (user_id, user_name, email, phone, balance, points, member_level, member_expire_date)
+        VALUES (#{userId}, #{userName}, #{email}, #{phone}, #{balance}, #{points}, #{memberLevel}, #{memberExpireDate})
+    </insert>
+
+    <update id="update">
+        UPDATE accounts 
+        SET user_name = #{userName},
+            email = #{email},
+            phone = #{phone},
+            balance = #{balance},
+            points = #{points},
+            member_level = #{memberLevel},
+            member_expire_date = #{memberExpireDate}
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateBalance">
+        UPDATE accounts SET balance = #{balance} WHERE user_id = #{userId}
+    </update>
+
+    <update id="updatePoints">
+        UPDATE accounts SET points = #{points} WHERE user_id = #{userId}
+    </update>
+
+</mapper>

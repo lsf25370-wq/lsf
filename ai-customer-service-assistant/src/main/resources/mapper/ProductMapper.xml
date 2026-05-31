@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csa.assistant.mapper.ProductMapper">
+
+    <resultMap id="ProductResultMap" type="com.csa.assistant.entity.ProductEntity">
+        <id column="id" property="id"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_name" property="name"/>
+        <result column="category" property="category"/>
+        <result column="description" property="description"/>
+        <result column="price" property="price"/>
+        <result column="stock" property="stock"/>
+        <result column="image_url" property="imageUrl"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="ProductResultMap">
+        SELECT * FROM products WHERE status = 'ON_SALE'
+    </select>
+
+    <select id="selectAllWithStatus" resultMap="ProductResultMap">
+        SELECT * FROM products ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByProductId" resultMap="ProductResultMap">
+        SELECT * FROM products WHERE product_id = #{productId}
+    </select>
+
+    <select id="selectByCategory" resultMap="ProductResultMap">
+        SELECT * FROM products WHERE category = #{category} AND status = 'ON_SALE'
+    </select>
+
+    <select id="searchProducts" resultMap="ProductResultMap">
+        SELECT * FROM products 
+        WHERE status = 'ON_SALE'
+          AND (product_name LIKE CONCAT('%', #{keyword}, '%') 
+               OR description LIKE CONCAT('%', #{keyword}, '%'))
+    </select>
+
+    <insert id="insert">
+        INSERT INTO products (product_id, product_name, category, description, price, stock, image_url, status, create_time)
+        VALUES (#{productId}, #{name}, #{category}, #{description}, #{price}, #{stock}, #{imageUrl}, #{status}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE products 
+        SET product_name = #{name},
+            category = #{category},
+            description = #{description},
+            price = #{price},
+            stock = #{stock},
+            image_url = #{imageUrl},
+            status = #{status},
+            create_time = #{createTime}
+        WHERE product_id = #{productId}
+    </update>
+
+    <update id="updateStock">
+        UPDATE products SET stock = #{stock} WHERE product_id = #{productId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE products SET status = #{status} WHERE product_id = #{productId}
+    </update>
+
+    <delete id="deleteByProductId">
+        DELETE FROM products WHERE product_id = #{productId}
+    </delete>
+
+</mapper>

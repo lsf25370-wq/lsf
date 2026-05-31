@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csa.assistant.mapper.LogisticsMapper">
+
+    <resultMap id="LogisticsResultMap" type="com.csa.assistant.entity.LogisticsEntity">
+        <id column="tracking_no" property="trackingNo"/>
+        <result column="logistics_company" property="logisticsCompany"/>
+        <result column="status" property="status"/>
+        <result column="events_json" property="eventsJson"/>
+    </resultMap>
+
+    <select id="selectByTrackingNo" resultMap="LogisticsResultMap">
+        SELECT * FROM logistics WHERE tracking_no = #{trackingNo}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO logistics (tracking_no, logistics_company, status, events_json)
+        VALUES (#{trackingNo}, #{logisticsCompany}, #{status}, #{eventsJson})
+    </insert>
+
+    <update id="update">
+        UPDATE logistics 
+        SET logistics_company = #{logisticsCompany},
+            status = #{status},
+            events_json = #{eventsJson}
+        WHERE tracking_no = #{trackingNo}
+    </update>
+
+    <delete id="deleteByTrackingNo">
+        DELETE FROM logistics WHERE tracking_no = #{trackingNo}
+    </delete>
+
+</mapper>

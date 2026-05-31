@@ -1,0 +1,5 @@
+请讲一个关于 {topic} 的精彩故事。
+要求：
+- 以 {output_format} 的格式输出
+- 字数控制在 {word_count} 左右
+

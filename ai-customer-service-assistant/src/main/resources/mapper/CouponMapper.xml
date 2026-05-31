@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csa.assistant.mapper.CouponMapper">
+
+    <resultMap id="CouponResultMap" type="com.csa.assistant.entity.CouponEntity">
+        <id column="id" property="id"/>
+        <result column="coupon_id" property="couponId"/>
+        <result column="name" property="name"/>
+        <result column="discount" property="discount"/>
+        <result column="min_amount" property="minAmount"/>
+        <result column="expire_date" property="expireDate"/>
+        <result column="available" property="available"/>
+        <result column="user_id" property="userId"/>
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="CouponResultMap">
+        SELECT * FROM coupons WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectAvailableByUserId" resultMap="CouponResultMap">
+        SELECT * FROM coupons WHERE user_id = #{userId} AND available = 1
+    </select>
+
+    <select id="selectByCouponId" resultMap="CouponResultMap">
+        SELECT * FROM coupons WHERE coupon_id = #{couponId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO coupons (coupon_id, name, discount, min_amount, expire_date, available, user_id)
+        VALUES (#{couponId}, #{name}, #{discount}, #{minAmount}, #{expireDate}, #{available}, #{userId})
+    </insert>
+
+    <update id="update">
+        UPDATE coupons 
+        SET coupon_id = #{couponId},
+            name = #{name},
+            discount = #{discount},
+            min_amount = #{minAmount},
+            expire_date = #{expireDate},
+            available = #{available},
+            user_id = #{userId}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM coupons WHERE id = #{id}
+    </delete>
+
+    <update id="updateStatus">
+        UPDATE coupons SET available = #{available} WHERE coupon_id = #{couponId}
+    </update>
+
+    <select id="selectAllTemplates" resultMap="CouponResultMap">
+        SELECT DISTINCT coupon_id, name, discount, min_amount, expire_date, available FROM coupons
+    </select>
+
+</mapper>
